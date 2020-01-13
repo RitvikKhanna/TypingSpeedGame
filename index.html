@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Speed Beater</title>
+    <!-- <script src="D:/SpeedBeater/main.js"></script> -->
+    <link
+        rel="stylesheet"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+        crossorigin="anonymous"
+    />
+    </head>
+    <body class="bg-dark text-white">
+        <header class="bg-secondary text-center p-3 mb-5">
+        <h1>Typing Speed Game</h1>
+        </header>
+
+    <div class="container text-center">
+        <div class="col-md-6 mx-auto">
+            <p class="lead">
+            Type the shown word in
+            <h1 class="text-success" id="seconds">5</h1>
+            seconds:
+            </p>
+            <h2 class="display-2 mb-5" id="current-word">Hey</h2>
+            <input
+            type="text"
+            class="form-control form-control-lg"
+            placeholder="Type the word..."
+            id="word-input"
+            autofocus
+            />
+            <div class="alert" id="alert" role="alert"></div>
+
+            <div class="row mt-5">
+                <div class="col-md-6">
+                    <h3>
+                    Time Left:
+                    <span id="time">0</span>
+                    </h3>
+                </div>
+                <div class="col-md-6">
+                    <h3>
+                    Score:
+                    <span id="score">0</span>
+                    </h3>
+                </div>
+            </div>
+
+        <div class="row mt-5">
+                <div class="col-md-3">
+                    <button id="easy" class="btn btn-danger">Easy</button>
+                </div>
+                <div class="col-md-3">
+                    <button id="medium" class="btn btn-primary">Medium</button>
+                </div>
+                <div class="col-md-3">
+                    <button id="hard" class="btn btn-warning">Hard</button>
+                </div>
+                <div class="col-md-3">
+                    <button id="expert" class="btn btn-success">Expert</button>
+                </div>
+        </div>
+
+        <div class="row mt-5 "d-inline-flex">
+            <div class="col-md-12">
+                <div class="card card-body bg-secondary text-white">
+                    <h4>Instructions!</h4>
+                    <span
+                        >Type the word shown in the given seconds highlighted in green.
+                        To keep playing, just type the current word. Score will reset.
+                    </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+      // Global Variables
+        let time = 5;
+        let score = 0;
+        let isPlaying;
+
+        const difficulty ={
+            easy:6,
+            medium:5,
+            hard:4,
+            expert:2
+        }
+
+
+        let currentLevel =  difficulty.easy
+
+        document.getElementById("easy").addEventListener('click',function(){
+            currentLevel = difficulty.easy
+        })
+
+        document.getElementById("medium").addEventListener('click',function(){
+            currentLevel = difficulty.medium
+        })
+
+        document.getElementById("hard").addEventListener('click',function(){
+            currentLevel = difficulty.hard
+        })
+
+        document.getElementById("expert").addEventListener('click',function(){
+            currentLevel = difficulty.expert
+        })
+
+        const wordInput = document.getElementById("word-input");
+        const currentWord = document.getElementById("current-word");
+        const timeSeconds = document.getElementById("time");
+        const scoreDisplay = document.getElementById("score");
+        const alert = document.getElementById("alert");
+        const seconds = document.getElementById("seconds");
+
+        init()
+
+        function init(){
+            showWord()
+            wordInput.addEventListener('input',startMatch)
+            setInterval(countDown,1000)
+            setInterval(gameStatus,50)
+        }
+
+        function showWord() {
+            fetch(
+            "https://random-word-api.herokuapp.com/word?key=U7UXN96Q&number=1"
+            )
+            .then(res => res.json())
+            .then(data => {
+                currentWord.innerHTML = data;
+                currentWord.style.color = "blue"
+            });
+        }
+
+        function countDown(){
+            if(time>0){
+                time--
+            }
+            else if(time=0){
+                isPlaying=false
+            }
+            timeSeconds.innerHTML=time
+        }
+
+        function startMatch(){
+            if(matchWords()){
+                isPlaying = true
+                time = currentLevel+1
+                showWord()
+                wordInput.value=''
+                score++
+                gameStatus()
+            }
+            else if(!matchWords()){
+                isPlaying = false
+                gameStatus()
+            }
+            scoreDisplay.innerHTML=score
+
+            if(score===-1){
+                scoreDisplay.innerHTML=0
+            }else{
+                scoreDisplay.innerHTML=score
+            }
+
+        }
+
+        function matchWords(){
+            if(wordInput.value === currentWord.innerHTML){
+                    alert.innerHTML = "CORRECT!"
+                    alert.style.color = "green"
+                    return true
+                }
+                else{
+                    alert.innerHTML='Incorrect'
+                    alert.style.color = "red"
+                    return false
+                }
+        }
+
+        function gameStatus(){
+            if(!isPlaying && time===0){
+                alert.innerHTML = "GAME OVER!!"
+                alert.style.color = "Red"
+                score=-1
+            }
+        }
+    </script>
+
+    </body>
+</html>
